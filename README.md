@@ -1,73 +1,91 @@
-# React + TypeScript + Vite
+# Shop List 🛒
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Shopping List** — веб-застосунок для керування списком покупок з підтримкою ролей, фільтрації та статусів товарів.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Опис
 
-## React Compiler
+Застосунок дозволяє:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+-   Додавати товари до списку покупок
+-   Відмічати статус: **Bought** (куплено) або **To Buy** (треба купити)
+-   Фільтрувати за категоріями та статусом
+-   Шукати товари в реальному часі (debounce)
+-   Завантажувати дані порціями через кнопку **Load More** (infinite pagination)
 
-## Expanding the ESLint configuration
+Підтримується авторизація з ролями:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+-   **Admin** — може створювати, редагувати, видаляти та перемикати статус товарів
+-   **User** — може лише переглядати список
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Технології
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+-   **Vite + React 18 + TypeScript**
+-   **React Router v6** — клієнтський роутинг
+-   **TanStack Query** — керування серверним станом
+-   **TailwindCSS** — стилізація
+-   **Firebase Firestore** — база даних
+-   **react-hook-form + zod** — форми з валідацією
+-   **lucide-react** — іконки
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Основні патерни
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 1. **Component-Based Architecture**
+
+Компоненти розділені за відповідальністю:
+
+-   **Pages** — `ProductList`, `ProductForm`, `Login`
+-   **Layout** — хедер, навігація, theme toggle
+-   **Context** — `AuthProvider` для глобального стану авторизації
+-   **Hooks** — `useProducts`, `useDebounce`
+
+### 2. **Custom Hooks Pattern**
+
+Бізнес-логіка винесена в кастомні хуки:
+
+-   `useProducts`, `useInfiniteProducts` — TanStack Query запити
+-   `useAuth` — робота з авторизацією
+-   `useDebounce` — затримка вводу для пошуку
+
+### 3. **Optimistic UI Updates**
+
+При зміні статусу товару:
+
+-   UI оновлюється **миттєво** (`onMutate`)
+-   Запит на сервер відбувається у фоні
+-   У разі помилки — автоматичний відкат стану (`onError`)
+
+### 4. **Route Guards (HOC Pattern)**
+
+Захист маршрутів через обгортки:
+
+-   `PrivateRoute` — перевірка авторизації
+-   `RoleRoute` — перевірка ролі (`admin` / `user`)
+
+### 5. **Separation of Concerns**
+
+Чітке розділення шарів:
+
+-   **API layer** (`src/api/`) — Firestore запити
+-   **Hooks layer** (`src/hooks/`) — TanStack Query логіка
+-   **UI layer** (`src/pages/`, `src/components/`) — рендер
+
+### 6. **Infinite Query Pattern**
+
+Замість класичної пагінації:
+
+-   `useInfiniteQuery` для завантаження порціями
+-   Кнопка **Load More** дозавантажує наступну сторінку
+-   Всі дані зберігаються в єдиному масиві
+
+### 7. **URL as Single Source of Truth**
+
+Фільтри (`category`, `status`, `q`) зберігаються в URL через `URLSearchParams`:
+
+-   Працює browser back/forward
+-   Можна поділитися посиланням з фільтрами
