@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useSearchParams, Link } from "react-router-dom";
 import {
-    useProducts,
+    useInfiniteProducts,
     useDeleteProduct,
     useUpdateProduct,
 } from "../hooks/useProducts";
@@ -14,10 +14,9 @@ import {
     Plus,
     ArrowUpDown,
     Search,
-    ChevronLeft,
-    ChevronRight,
     CheckCircle2,
     Circle,
+    Loader2,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import type { Product } from "../types";
@@ -28,8 +27,7 @@ export const ProductList = () => {
     const deleteMutation = useDeleteProduct();
     const updateMutation = useUpdateProduct();
 
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "8");
+    const limit = parseInt(searchParams.get("limit") || "7");
     const sort = searchParams.get("sort") || "createdAt";
     const order = (searchParams.get("order") as "asc" | "desc") || "desc";
     const q = searchParams.get("q") || "";
@@ -43,7 +41,6 @@ export const ProductList = () => {
         const params = new URLSearchParams(searchParams);
         if (debouncedSearch) params.set("q", debouncedSearch);
         else params.delete("q");
-        params.set("page", "1");
         setSearchParams(params);
     }, [debouncedSearch]);
 
@@ -51,8 +48,14 @@ export const ProductList = () => {
     if (statusFilter === "bought") boughtParam = true;
     if (statusFilter === "to_buy") boughtParam = false;
 
-    const { data, isLoading, isError } = useProducts({
-        page,
+    const {
+        data,
+        isLoading,
+        isError,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useInfiniteProducts({
         limit,
         sort,
         order,
@@ -85,17 +88,14 @@ export const ProductList = () => {
         });
     };
 
-    const handlePageChange = (newPage: number) => {
-        const params = new URLSearchParams(searchParams);
-        params.set("page", newPage.toString());
-        setSearchParams(params);
-    };
-
     const customSelectStyle = {
         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L2 4h8z'/%3E%3C/svg%3E")`,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "right 12px center",
     };
+
+    const allProducts = data?.pages.flatMap((page) => page.data) ?? [];
+    const totalCount = data?.pages[0]?.total ?? 0;
 
     if (isError)
         return (
@@ -112,7 +112,7 @@ export const ProductList = () => {
                         Shopping List
                     </h1>
                     <p className="text-muted-foreground text-sm mt-1">
-                        Manage your purchases.
+                        {totalCount} {totalCount === 1 ? "item" : "items"} total
                     </p>
                 </div>
                 {user?.role === "admin" && (
@@ -144,7 +144,6 @@ export const ProductList = () => {
                     onChange={(e) => {
                         const params = new URLSearchParams(searchParams);
                         params.set("category", e.target.value);
-                        params.set("page", "1");
                         setSearchParams(params);
                     }}
                     className="px-4 py-2.5 bg-secondary border-0 rounded-xl text-sm outline-none cursor-pointer hover:bg-secondary/70 transition-all appearance-none min-w-[140px] font-medium"
@@ -162,7 +161,6 @@ export const ProductList = () => {
                     onChange={(e) => {
                         const params = new URLSearchParams(searchParams);
                         params.set("status", e.target.value);
-                        params.set("page", "1");
                         setSearchParams(params);
                     }}
                     className="px-4 py-2.5 bg-secondary border-0 rounded-xl text-sm outline-none cursor-pointer hover:bg-secondary/70 transition-all appearance-none min-w-[120px] font-medium"
@@ -222,7 +220,7 @@ export const ProductList = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border/50">
-                                {data?.data.length === 0 ? (
+                                {allProducts.length === 0 ? (
                                     <tr>
                                         <td
                                             colSpan={5}
@@ -232,7 +230,7 @@ export const ProductList = () => {
                                         </td>
                                     </tr>
                                 ) : (
-                                    data?.data.map((product) => (
+                                    allProducts.map((product) => (
                                         <tr
                                             key={product.id}
                                             className="group hover:bg-muted/40 transition-colors duration-200"
@@ -289,12 +287,12 @@ export const ProductList = () => {
                                             </td>
                                             {user?.role === "admin" && (
                                                 <td className="px-6 py-4 text-right">
-                                                    <div className="flex justify-end gap-1 transition-opacity">
+                                                    <div className="flex justify-end gap-1">
                                                         <Link
                                                             to={`/products/${product.id}/edit`}
-                                                            className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full transition-colors"
+                                                            className="p-2 text-muted-foreground/70 hover:text-primary hover:bg-primary/10 rounded-full transition-all"
                                                         >
-                                                            <Pencil size={16} />
+                                                            <Pencil size={18} />
                                                         </Link>
                                                         <button
                                                             onClick={() =>
@@ -302,9 +300,9 @@ export const ProductList = () => {
                                                                     product.id
                                                                 )
                                                             }
-                                                            className="p-2 text-muted-foreground cursor-pointer hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
+                                                            className="p-2 text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 rounded-full transition-all"
                                                         >
-                                                            <Trash2 size={16} />
+                                                            <Trash2 size={18} />
                                                         </button>
                                                     </div>
                                                 </td>
@@ -318,28 +316,24 @@ export const ProductList = () => {
                 )}
             </div>
 
-            <div className="flex justify-between items-center pt-2">
-                <div className="text-xs text-muted-foreground pl-2">
-                    Page {page} of{" "}
-                    {Math.max(1, Math.ceil((data?.total || 0) / limit))}
-                </div>
-                <div className="flex items-center gap-2">
+            {hasNextPage && (
+                <div className="flex justify-center pt-4">
                     <button
-                        disabled={page === 1}
-                        onClick={() => handlePageChange(page - 1)}
-                        className="p-2 rounded-full border bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 transition-all shadow-sm"
+                        onClick={() => fetchNextPage()}
+                        disabled={isFetchingNextPage}
+                        className="px-6 py-3 bg-card border rounded-xl font-medium hover:bg-muted/40 transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm"
                     >
-                        <ChevronLeft size={16} />
-                    </button>
-                    <button
-                        disabled={!data?.total || page * limit >= data.total}
-                        onClick={() => handlePageChange(page + 1)}
-                        className="p-2 rounded-full border bg-white dark:bg-card hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 transition-all shadow-sm"
-                    >
-                        <ChevronRight size={16} />
+                        {isFetchingNextPage ? (
+                            <>
+                                <Loader2 size={16} className="animate-spin" />
+                                <span>Loading...</span>
+                            </>
+                        ) : (
+                            <span>Load More</span>
+                        )}
                     </button>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
