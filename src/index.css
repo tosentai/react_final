@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+    /* Apple Design System Colors */
+    --color-border: hsl(214 15% 91%);
+    --color-input: hsl(214 15% 91%);
+    --color-ring: hsl(211 100% 50%);
+
+    /* Light Theme - Apple's signature off-white */
+    --color-background: hsl(0 0% 98.5%); /* #FBFBFD */
+    --color-foreground: hsl(240 10% 3.9%);
+
+    /* Apple Blue - System accent color */
+    --color-primary: hsl(211 100% 50%); /* #007AFF */
+    --color-primary-foreground: hsl(0 0% 100%);
+
+    /* Secondary UI elements */
+    --color-secondary: hsl(210 16.7% 97.6%); /* #F5F5F7 */
+    --color-secondary-foreground: hsl(240 5.9% 10%);
+
+    --color-muted: hsl(210 16.7% 97.6%);
+    --color-muted-foreground: hsl(240 3.8% 46.1%);
+
+    --color-destructive: hsl(0 84.2% 60.2%); /* Apple Red */
+    --color-destructive-foreground: hsl(0 0% 98%);
+
+    --color-card: hsl(0 0% 100%);
+    --color-card-foreground: hsl(240 10% 3.9%);
+
+    --radius: 0.75rem;
+}
+
+/* Dark mode */
+.dark {
+    --color-background: hsl(0 0% 0%);
+    --color-foreground: hsl(0 0% 98%);
+    --color-border: hsl(0 0% 15%);
+    --color-input: hsl(0 0% 15%);
+    --color-secondary: hsl(0 0% 10%);
+    --color-secondary-foreground: hsl(0 0% 98%);
+    --color-muted: hsl(0 0% 10%);
+    --color-muted-foreground: hsl(0 0% 60%);
+    --color-card: hsl(0 0% 7%);
+}
+
+* {
+    @apply border-border;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+        "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    @apply bg-background text-foreground antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth transitions for theme switching */
+* {
+    transition-property: background-color, border-color, color;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

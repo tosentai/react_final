@@ -1,0 +1,92 @@
+{
+  "products": [
+    {
+      "id": 2,
+      "name": "Wireless Mouse",
+      "price": 25.5,
+      "category": "Electronics",
+      "inStock": true,
+      "createdAt": "2023-10-02T11:00:00Z"
+    },
+    {
+      "id": 4,
+      "name": "React Guide",
+      "price": 30,
+      "category": "Books",
+      "inStock": true,
+      "createdAt": "2023-10-04T13:00:00Z"
+    },
+    {
+      "id": 5,
+      "name": "Headphones",
+      "price": 89.99,
+      "category": "Electronics",
+      "inStock": true,
+      "createdAt": "2023-10-05T14:00:00Z"
+    },
+    {
+      "id": 6,
+      "name": "Novel",
+      "price": 12,
+      "category": "Books",
+      "inStock": true,
+      "createdAt": "2023-10-06T15:00:00Z"
+    },
+    {
+      "name": "Adapt from AyahPath",
+      "price": 555,
+      "category": "Clothing",
+      "inStock": false,
+      "createdAt": "2025-12-13T20:06:04.935Z",
+      "id": 7
+    },
+    {
+      "name": "Karton",
+      "price": 123,
+      "category": "Books",
+      "inStock": true,
+      "createdAt": "2025-12-13T20:11:13.240Z",
+      "id": 8
+    },
+    {
+      "name": "1213",
+      "price": 1,
+      "category": "Electronics",
+      "inStock": true,
+      "createdAt": "2025-12-13T20:35:18.244Z",
+      "id": 9
+    },
+    {
+      "name": "12321",
+      "price": 3213,
+      "category": "Electronics",
+      "inStock": true,
+      "createdAt": "2025-12-13T20:35:21.329Z",
+      "id": 10
+    },
+    {
+      "name": "213213",
+      "price": 313,
+      "category": "Clothing",
+      "inStock": true,
+      "createdAt": "2025-12-13T20:35:28.138Z",
+      "id": 11
+    },
+    {
+      "name": "sdfsdf",
+      "price": 13,
+      "category": "Electronics",
+      "inStock": true,
+      "createdAt": "2025-12-13T20:35:33.987Z",
+      "id": 12
+    },
+    {
+      "name": "fffff",
+      "price": 3113,
+      "category": "Clothing",
+      "inStock": true,
+      "createdAt": "2025-12-13T20:37:26.999Z",
+      "id": 13
+    }
+  ]
+}
