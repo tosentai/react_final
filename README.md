@@ -21,71 +21,92 @@ Supports role-based authentication:
 
 ---
 
-## Tech Stack
+## Architecture
 
--   **Vite + React 18 + TypeScript**
--   **React Router v6** — client-side routing
--   **TanStack Query** — server state management
--   **TailwindCSS** — styling
--   **Firebase Firestore** — database
--   **react-hook-form + zod** — form validation
--   **lucide-react** — icons
+The application follows a layered, component-based architecture:
+
+-   **Presentation layer (UI)**
+    -   `src/pages/` — route-level pages (`ProductList`, `ProductForm`, `Login`, `NotFound`)
+    -   `src/components/` — reusable UI pieces (Layout, header, navigation, table row actions)
+-   **State & logic layer**
+    -   `src/context/` — `AuthProvider` (authentication, roles, session)
+    -   `src/hooks/` — custom hooks for data fetching and UI behavior (`useProducts`, `useInfiniteProducts`, `useAuth`, `useDebounce`)
+-   **Data access layer**
+    -   `src/api/` — Firestore CRUD for products (`getProducts`, `getProduct`, `createProduct`, `updateProduct`, `deleteProduct`)
+-   **Infrastructure**
+    -   `src/firebase.ts` — Firebase app & Firestore initialization
+    -   `src/router/` — `AppRouter` + route guards (private and role-based)
+    -   `src/types/` — TypeScript models (`User`, `Product`, `ProductParams`)
+
+Key architectural decisions:
+
+-   **Server state vs UI state**
+    -   Everything coming from backend (products, product details) — via TanStack Query
+    -   Local UI state (search input, filters, theme) — via React state + URL search params
+-   **URL as state**
+    -   Filters (`q`, `category`, `status`, sort) stored in URL, which allows:
+        -   sharing links with applied filters
+        -   correct browser back/forward behavior
+-   **Infinite loading**
+    -   Product list uses `useInfiniteQuery` + **Load More** button instead of classic pagination
+-   **Optimistic updates**
+    -   Toggling _Bought / To Buy_ status executes optimistically: UI updates instantly, Firestore request happens in background
 
 ---
 
-## Key Patterns
+## Technologies
 
-### 1. **Component-Based Architecture**
+### Core
 
-Components are organized by responsibility:
+-   **Vite + React 18 + TypeScript**
 
--   **Pages** — `ProductList`, `ProductForm`, `Login`
--   **Layout** — header, navigation, theme toggle
--   **Context** — `AuthProvider` for global auth state
--   **Hooks** — `useProducts`, `useDebounce`
+    -   Vite — fast dev server and build tool
+    -   React + TS — type-safe component interfaces
 
-### 2. **Custom Hooks Pattern**
+-   **React Router v6**
 
-Business logic extracted into custom hooks:
+    -   Client-side SPA routing
+    -   Private routes + role-based routes for `admin`-only sections
 
--   `useProducts`, `useInfiniteProducts` — TanStack Query requests
--   `useAuth` — authentication logic
--   `useDebounce` — input delay for search
+-   **TanStack Query (React Query)**
 
-### 3. **Optimistic UI Updates**
+    -   Server state management:
+        -   caching Firestore requests
+        -   `useQuery` for standard queries
+        -   `useInfiniteQuery` for infinite "Load More"
+        -   mutations with `onMutate` / `onError` / `onSettled` for optimistic UI
 
-When changing item status:
+-   **Firebase Firestore**
+    -   NoSQL database for storing products
+    -   Server-side filtering by `category` and `bought`
+    -   Client-side search (`q`) and sorting (`sort`, `order`)
 
--   UI updates **instantly** (`onMutate`)
--   Server request happens in the background
--   Automatic rollback on error (`onError`)
+### UI & Forms
 
-### 4. **Route Guards (HOC Pattern)**
+-   **TailwindCSS with custom design system**
 
-Route protection via wrappers:
+    -   CSS variables for theme tokens (colors, radius, shadows)
+    -   Consistent component styling (cards, inputs, buttons, badges)
+    -   Light/Dark theme support
 
--   `PrivateRoute` — checks authentication
--   `RoleRoute` — checks role (`admin` / `user`)
+-   **react-hook-form + zod**
 
-### 5. **Separation of Concerns**
+    -   Schema-based form validation
+    -   Type-safe forms for creating/editing products
 
-Clear layer separation:
+-   **lucide-react**
+    -   Icons for actions (edit, delete, status, search, theme toggle)
 
--   **API layer** (`src/api/`) — Firestore requests
--   **Hooks layer** (`src/hooks/`) — TanStack Query logic
--   **UI layer** (`src/pages/`, `src/components/`) — rendering
+---
 
-### 6. **Infinite Query Pattern**
+## Tooling
 
-Instead of classic pagination:
+-   **ESLint / TypeScript**
 
--   `useInfiniteQuery` for loading in chunks
--   **Load More** button fetches the next page
--   All data stored in a single array
+    -   Type checking and basic linting
 
-### 7. **URL as Single Source of Truth**
+-   **Vercel**
 
-Filters (`category`, `status`, `q`) stored in URL via `URLSearchParams`:
-
--   Browser back/forward works correctly
--   Shareable links with applied filters
+    -   Frontend hosting (SPA)
+    -   `vercel.json` with rewrites:
+        -   all routes (`/products`, `/products/new`, `/login`, etc.) redirect to `index.html`, where React Router handles them
