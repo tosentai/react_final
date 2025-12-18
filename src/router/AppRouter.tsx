@@ -42,9 +42,7 @@ export const AppRouter = () => {
                     <Route path="/products" element={<ProductList />} />
                     <Route
                         path="/products/:id"
-                        element={
-                            <div>Product Detail (Implement if needed)</div>
-                        }
+                        element={<div>Product Detail</div>}
                     />
 
                     <Route element={<RoleRoute roles={["admin"]} />}>

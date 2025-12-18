@@ -1,39 +1,14 @@
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Sun, Moon, LogOut, Package } from "lucide-react";
-import { useState, useEffect } from "react";
 import { cn } from "../lib/utils";
+import { useTheme } from "../hooks/useTheme";
 
 export const Layout = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-
-    const [theme, setTheme] = useState<"light" | "dark">(() => {
-        const saved = localStorage.getItem("theme");
-        if (saved) return saved as "light" | "dark";
-
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-            return "dark";
-        }
-        return "light";
-    });
-
-    useEffect(() => {
-        const root = document.documentElement;
-
-        if (theme === "dark") {
-            root.classList.add("dark");
-        } else {
-            root.classList.remove("dark");
-        }
-
-        localStorage.setItem("theme", theme);
-    }, [theme]);
-
-    const toggleTheme = () => {
-        setTheme((prev) => (prev === "light" ? "dark" : "light"));
-    };
+    const { theme, toggleTheme } = useTheme();
 
     const handleLogout = () => {
         logout();
