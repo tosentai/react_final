@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import type { ProductFormActionsProps } from "../../lib/productsTypes";
+import type { ProductFormActionsProps } from "../../../lib/productsTypes";
 
 export const ProductFormActions = ({ isEdit }: ProductFormActionsProps) => {
     const navigate = useNavigate();

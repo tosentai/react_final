@@ -1,4 +1,4 @@
-import type { ProductFormCheckboxProps } from "../../lib/productsTypes";
+import type { ProductFormCheckboxProps } from "../../../lib/productsTypes";
 
 export const ProductFormCheckbox = ({
     label,

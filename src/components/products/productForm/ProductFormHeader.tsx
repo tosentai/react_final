@@ -1,4 +1,4 @@
-import type { ProductFormHeaderProps } from "../../lib/productsTypes";
+import type { ProductFormHeaderProps } from "../../../lib/productsTypes";
 
 export const ProductFormHeader = ({ isEdit }: ProductFormHeaderProps) => {
     return (

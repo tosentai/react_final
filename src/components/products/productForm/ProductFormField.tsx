@@ -1,4 +1,4 @@
-import type { ProductFormFieldProps } from "../../lib/productsTypes";
+import type { ProductFormFieldProps } from "../../../lib/productsTypes";
 
 export const ProductFormField = ({
     label,
