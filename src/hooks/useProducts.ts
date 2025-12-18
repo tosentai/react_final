@@ -6,7 +6,7 @@ import {
     useInfiniteQuery,
 } from "@tanstack/react-query";
 import * as api from "../api/products";
-import type { ProductParams, Product } from "../types";
+import type { ProductParams, Product } from "../lib";
 
 export const useProducts = (params: ProductParams) => {
     return useQuery({

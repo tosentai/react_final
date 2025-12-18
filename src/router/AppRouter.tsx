@@ -5,7 +5,7 @@ import { Login } from "../pages/Login";
 import { ProductList } from "../pages/ProductList";
 import { ProductForm } from "../pages/ProductForm";
 import { NotFound } from "../pages/NotFound";
-import type { Role } from "../types";
+import type { Role } from "../lib";
 
 const PrivateRoute = () => {
     const { user, isLoading } = useAuth();

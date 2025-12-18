@@ -1,5 +1,5 @@
 import type { FieldError, UseFormRegister } from "react-hook-form";
-import type { Product } from "../types";
+import type { Product } from ".";
 
 export interface ProductsHeaderProps {
     totalCount: number;

@@ -11,7 +11,7 @@ import { ProductsHeader } from "../components/products/ProductsHeader";
 import { ProductsFilters } from "../components/products/ProductsFilters";
 import { ProductsTable } from "../components/products/ProductsTable";
 import { LoadMoreButton } from "../components/products/LoadMoreButton";
-import type { Product } from "../types";
+import type { Product } from "../lib";
 
 export const ProductList = () => {
     const [searchParams, setSearchParams] = useSearchParams();

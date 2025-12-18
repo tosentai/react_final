@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable react-hooks/set-state-in-effect */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { type User } from "../types";
+import { type User } from "../lib";
 
 const MOCK_USERS: User[] = [
     { id: "1", email: "admin@test.com", name: "Admin User", role: "admin" },

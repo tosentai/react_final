@@ -12,7 +12,7 @@ import {
     QueryConstraint,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import type { Product, ProductParams } from "../types";
+import type { Product, ProductParams } from "../lib";
 
 const COLLECTION_NAME = "products";
 
