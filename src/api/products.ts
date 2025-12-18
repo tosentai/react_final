@@ -11,7 +11,7 @@ import {
     where,
     QueryConstraint,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../lib/firebase";
 import type { Product, ProductParams } from "../lib";
 
 const COLLECTION_NAME = "products";
