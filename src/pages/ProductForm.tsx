@@ -8,6 +8,11 @@ import {
     useProduct,
 } from "../hooks/useProducts";
 import { useEffect } from "react";
+import { ProductFormHeader } from "../components/products/productForm/ProductFormHeader";
+import { ProductFormField } from "../components/products/productForm/ProductFormField";
+import { ProductFormSelect } from "../components/products/productForm/ProductFormSelect";
+import { ProductFormCheckbox } from "../components/products/productForm/ProductFormCheckbox";
+import { ProductFormActions } from "../components/products/productForm/ProductFormActions";
 
 const productSchema = z.object({
     name: z.string().min(3, "Min 3 chars"),
@@ -17,6 +22,14 @@ const productSchema = z.object({
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
+
+const categoryOptions = [
+    { value: "", label: "Select..." },
+    { value: "Groceries", label: "Groceries" },
+    { value: "Electronics", label: "Electronics" },
+    { value: "Clothing", label: "Clothing" },
+    { value: "Household", label: "Household" },
+];
 
 export const ProductForm = () => {
     const { id } = useParams();
@@ -60,93 +73,44 @@ export const ProductForm = () => {
 
     return (
         <div className="max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">
-                {isEdit ? "Edit Product" : "Create Product"}
-            </h1>
+            <ProductFormHeader isEdit={isEdit} />
+
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="space-y-6 bg-card p-6 rounded-lg border shadow-sm"
             >
-                <div>
-                    <label className="block text-sm font-medium mb-1">
-                        Name
-                    </label>
-                    <input
-                        {...register("name")}
-                        className="w-full p-2 border rounded-md bg-background"
-                    />
-                    {errors.name && (
-                        <p className="text-red-500 text-sm">
-                            {errors.name.message}
-                        </p>
-                    )}
-                </div>
+                <ProductFormField
+                    label="Name"
+                    name="name"
+                    register={register}
+                    error={errors.name}
+                />
 
-                <div>
-                    <label className="block text-sm font-medium mb-1">
-                        Price
-                    </label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        {...register("price", { valueAsNumber: true })}
-                        className="w-full p-2 border rounded-md bg-background"
-                    />
-                    {errors.price && (
-                        <p className="text-red-500 text-sm">
-                            {errors.price.message}
-                        </p>
-                    )}
-                </div>
+                <ProductFormField
+                    label="Price"
+                    name="price"
+                    type="number"
+                    step="0.01"
+                    register={register}
+                    registerOptions={{ valueAsNumber: true }}
+                    error={errors.price}
+                />
 
-                <div>
-                    <label className="block text-sm font-medium mb-1">
-                        Category
-                    </label>
-                    <select
-                        {...register("category")}
-                        className="w-full p-2 border rounded-md bg-background"
-                    >
-                        <option value="">Select...</option>
-                        <option value="Groceries">Groceries</option>
-                        <option value="Electronics">Electronics</option>
-                        <option value="Clothing">Clothing</option>
-                        <option value="Household">Household</option>
-                    </select>
-                    {errors.category && (
-                        <p className="text-red-500 text-sm">
-                            {errors.category.message}
-                        </p>
-                    )}
-                </div>
+                <ProductFormSelect
+                    label="Category"
+                    name="category"
+                    options={categoryOptions}
+                    register={register}
+                    error={errors.category}
+                />
 
-                <div className="flex items-center gap-2">
-                    <input
-                        type="checkbox"
-                        {...register("bought")}
-                        id="bought"
-                        className="h-4 w-4"
-                    />
-                    <label htmlFor="bought" className="text-sm font-medium">
-                        Bought
-                    </label>
-                </div>
+                <ProductFormCheckbox
+                    label="Bought"
+                    name="bought"
+                    register={register}
+                />
 
-                <div className="flex gap-4">
-                    <button
-                        type="submit"
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    >
-                        {isEdit ? "Update" : "Create"}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => navigate("/products")}
-                        className="px-4 py-2 border rounded-md hover:bg-accent"
-                    >
-                        Cancel
-                    </button>
-                </div>
+                <ProductFormActions isEdit={isEdit} />
             </form>
         </div>
     );

@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
     useInfiniteProducts,
     useDeleteProduct,
@@ -8,17 +7,10 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useDebounce } from "../hooks/useDebounce";
 import { useState, useEffect } from "react";
-import {
-    Pencil,
-    Trash2,
-    Plus,
-    ArrowUpDown,
-    Search,
-    CheckCircle2,
-    Circle,
-    Loader2,
-} from "lucide-react";
-import { cn } from "../lib/utils";
+import { ProductsHeader } from "../components/products/ProductsHeader";
+import { ProductsFilters } from "../components/products/ProductsFilters";
+import { ProductsTable } from "../components/products/ProductsTable";
+import { LoadMoreButton } from "../components/products/LoadMoreButton";
 import type { Product } from "../types";
 
 export const ProductList = () => {
@@ -88,252 +80,45 @@ export const ProductList = () => {
         });
     };
 
-    const customSelectStyle = {
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L2 4h8z'/%3E%3C/svg%3E")`,
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "right 12px center",
-    };
-
     const allProducts = data?.pages.flatMap((page) => page.data) ?? [];
     const totalCount = data?.pages[0]?.total ?? 0;
 
-    if (isError)
+    if (isError) {
         return (
             <div className="p-8 text-center text-red-500 font-medium">
                 Error loading products
             </div>
         );
+    }
 
     return (
         <div className="space-y-6 max-w-5xl mx-auto">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                        Shopping List
-                    </h1>
-                    <p className="text-muted-foreground text-sm mt-1">
-                        {totalCount} {totalCount === 1 ? "item" : "items"} total
-                    </p>
-                </div>
-                {user?.role === "admin" && (
-                    <Link
-                        to="/products/new"
-                        className="group relative inline-flex items-center justify-center gap-2 px-5 py-2.5 font-medium text-white transition-all duration-200 bg-primary rounded-full hover:bg-blue-600 active:scale-95 shadow-lg shadow-blue-500/30"
-                    >
-                        <Plus size={18} />
-                        <span>Add Item</span>
-                    </Link>
-                )}
-            </div>
+            <ProductsHeader
+                totalCount={totalCount}
+                isAdmin={user?.role === "admin"}
+            />
 
-            <div className="flex flex-col sm:flex-row gap-3 bg-card p-2 rounded-2xl border shadow-sm">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <input
-                        type="text"
-                        placeholder="Search products..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-secondary border-0 rounded-xl text-sm focus:bg-secondary/70 focus:ring-2 focus:ring-primary/20 transition-all outline-none placeholder:text-muted-foreground"
-                    />
-                </div>
-                <div className="w-px bg-border hidden sm:block my-2" />
+            <ProductsFilters
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+            />
 
-                <select
-                    value={category}
-                    onChange={(e) => {
-                        const params = new URLSearchParams(searchParams);
-                        params.set("category", e.target.value);
-                        setSearchParams(params);
-                    }}
-                    className="px-4 py-2.5 bg-secondary border-0 rounded-xl text-sm outline-none cursor-pointer hover:bg-secondary/70 transition-all appearance-none min-w-[140px] font-medium"
-                    style={customSelectStyle}
-                >
-                    <option value="all">All Categories</option>
-                    <option value="Groceries">Groceries</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Clothing">Clothing</option>
-                    <option value="Household">Household</option>
-                </select>
+            <ProductsTable
+                products={allProducts}
+                isLoading={isLoading}
+                isAdmin={user?.role === "admin"}
+                sort={sort}
+                order={order}
+                onSort={handleSort}
+                onDelete={handleDelete}
+                onToggleStatus={toggleStatus}
+            />
 
-                <select
-                    value={statusFilter}
-                    onChange={(e) => {
-                        const params = new URLSearchParams(searchParams);
-                        params.set("status", e.target.value);
-                        setSearchParams(params);
-                    }}
-                    className="px-4 py-2.5 bg-secondary border-0 rounded-xl text-sm outline-none cursor-pointer hover:bg-secondary/70 transition-all appearance-none min-w-[120px] font-medium"
-                    style={customSelectStyle}
-                >
-                    <option value="all">All Status</option>
-                    <option value="to_buy">To Buy</option>
-                    <option value="bought">Bought</option>
-                </select>
-            </div>
-
-            <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
-                {isLoading ? (
-                    <div className="p-12 text-center text-muted-foreground animate-pulse">
-                        Loading data...
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                            <thead className="bg-muted/30 border-b">
-                                <tr>
-                                    <th
-                                        className="px-6 py-4 font-semibold text-muted-foreground cursor-pointer select-none group"
-                                        onClick={() => handleSort("name")}
-                                    >
-                                        <div className="flex items-center gap-1 group-hover:text-foreground transition-colors">
-                                            Name{" "}
-                                            <ArrowUpDown
-                                                size={13}
-                                                className="opacity-50"
-                                            />
-                                        </div>
-                                    </th>
-                                    <th
-                                        className="px-6 py-4 font-semibold text-muted-foreground cursor-pointer select-none group"
-                                        onClick={() => handleSort("price")}
-                                    >
-                                        <div className="flex items-center gap-1 group-hover:text-foreground transition-colors">
-                                            Price{" "}
-                                            <ArrowUpDown
-                                                size={13}
-                                                className="opacity-50"
-                                            />
-                                        </div>
-                                    </th>
-                                    <th className="px-6 py-4 font-semibold text-muted-foreground">
-                                        Category
-                                    </th>
-                                    <th className="px-6 py-4 font-semibold text-muted-foreground">
-                                        Status
-                                    </th>
-                                    {user?.role === "admin" && (
-                                        <th className="px-6 py-4 text-right font-semibold text-muted-foreground">
-                                            Actions
-                                        </th>
-                                    )}
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border/50">
-                                {allProducts.length === 0 ? (
-                                    <tr>
-                                        <td
-                                            colSpan={5}
-                                            className="text-center py-12 text-muted-foreground"
-                                        >
-                                            No items found.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    allProducts.map((product) => (
-                                        <tr
-                                            key={product.id}
-                                            className="group hover:bg-muted/40 transition-colors duration-200"
-                                        >
-                                            <td className="px-6 py-4 font-medium text-foreground">
-                                                <span
-                                                    className={cn(
-                                                        product.bought &&
-                                                            "text-muted-foreground line-through decoration-muted-foreground/50"
-                                                    )}
-                                                >
-                                                    {product.name}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 font-medium tabular-nums text-foreground/80">
-                                                ${product.price.toFixed(2)}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground border border-border/50">
-                                                    {product.category}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <button
-                                                    onClick={() =>
-                                                        user?.role ===
-                                                            "admin" &&
-                                                        toggleStatus(product)
-                                                    }
-                                                    disabled={
-                                                        user?.role !== "admin"
-                                                    }
-                                                    className={cn(
-                                                        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all",
-                                                        product.bought
-                                                            ? "bg-green-50/50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/50"
-                                                            : "bg-red-50/50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50",
-                                                        user?.role ===
-                                                            "admin" &&
-                                                            "hover:opacity-80 active:scale-95 cursor-pointer"
-                                                    )}
-                                                >
-                                                    {product.bought ? (
-                                                        <CheckCircle2
-                                                            size={12}
-                                                        />
-                                                    ) : (
-                                                        <Circle size={12} />
-                                                    )}
-                                                    {product.bought
-                                                        ? "Bought"
-                                                        : "To Buy"}
-                                                </button>
-                                            </td>
-                                            {user?.role === "admin" && (
-                                                <td className="px-6 py-4 text-right">
-                                                    <div className="flex justify-end gap-1">
-                                                        <Link
-                                                            to={`/products/${product.id}/edit`}
-                                                            className="p-2 text-muted-foreground/70 hover:text-primary hover:bg-primary/10 rounded-full transition-all"
-                                                        >
-                                                            <Pencil size={18} />
-                                                        </Link>
-                                                        <button
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    product.id
-                                                                )
-                                                            }
-                                                            className="p-2 text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 rounded-full transition-all"
-                                                        >
-                                                            <Trash2 size={18} />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            )}
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
-
-            {hasNextPage && (
-                <div className="flex justify-center pt-4">
-                    <button
-                        onClick={() => fetchNextPage()}
-                        disabled={isFetchingNextPage}
-                        className="px-6 py-3 bg-card border rounded-xl font-medium hover:bg-muted/40 transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm"
-                    >
-                        {isFetchingNextPage ? (
-                            <>
-                                <Loader2 size={16} className="animate-spin" />
-                                <span>Loading...</span>
-                            </>
-                        ) : (
-                            <span>Load More</span>
-                        )}
-                    </button>
-                </div>
-            )}
+            <LoadMoreButton
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                onLoadMore={fetchNextPage}
+            />
         </div>
     );
 };

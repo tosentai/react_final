@@ -44,6 +44,7 @@ export const useCreateProduct = () => {
         mutationFn: api.createProduct,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["products"] });
+            queryClient.invalidateQueries({ queryKey: ["products-infinite"] });
         },
     });
 };
@@ -104,6 +105,7 @@ export const useDeleteProduct = () => {
         mutationFn: api.deleteProduct,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["products"] });
+            queryClient.invalidateQueries({ queryKey: ["products-infinite"] });
         },
     });
 };
